@@ -5,7 +5,10 @@ export interface Range {
   end: number;
 }
 
-const crossSorted = (firstRanges: Range[], secondRanges: Range[]): Range[] => {
+const intersectSorted = (
+  firstRanges: Range[],
+  secondRanges: Range[]
+): Range[] => {
   const [firstRange, ...firstRangesLeft] = firstRanges;
   const [secondRange, ...secondRangesLeft] = secondRanges;
   if (!firstRange || !secondRange) return [];
@@ -22,13 +25,13 @@ const crossSorted = (firstRanges: Range[], secondRanges: Range[]): Range[] => {
 
   // Case 1: S1 - E1 - S2 - E2 -> No overlap
   if (earlierRange.end < laterRange.start) {
-    return crossSorted(earlierRangesLeft, [laterRange, ...laterRangesLeft]);
+    return intersectSorted(earlierRangesLeft, [laterRange, ...laterRangesLeft]);
   }
   // Case 2: S1 - S2 - E2 - E1 -> laterRange is contained
   if (laterRange.end < earlierRange.end) {
     return [
       laterRange,
-      ...crossSorted(
+      ...intersectSorted(
         [
           { start: laterRange.end, end: earlierRange.end },
           ...earlierRangesLeft,
@@ -40,7 +43,7 @@ const crossSorted = (firstRanges: Range[], secondRanges: Range[]): Range[] => {
   // Case 3: S1 - S2 - E1 - E2 -> Range is splitted
   return [
     { start: laterRange.start, end: earlierRange.end },
-    ...crossSorted(earlierRangesLeft, [
+    ...intersectSorted(earlierRangesLeft, [
       { start: earlierRange.end, end: laterRange.end },
       ...laterRangesLeft,
     ]),
@@ -53,7 +56,7 @@ const sort = (ranges: Range[]) =>
     .sortBy((r) => r.start)
     .value();
 
-const mergeSorted = (ranges: Range[]): Range[] => {
+const unionSorted = (ranges: Range[]): Range[] => {
   const [earlierRange, ...restRanges] = ranges;
   if (!earlierRange) return [];
   const overlappingLaterRange = restRanges.find((laterRange) => {
@@ -61,26 +64,29 @@ const mergeSorted = (ranges: Range[]): Range[] => {
     return true;
   });
   if (!overlappingLaterRange) {
-    return [earlierRange, ...mergeSorted(restRanges)];
+    return [earlierRange, ...unionSorted(restRanges)];
   }
   if (overlappingLaterRange.end < earlierRange.end) {
-    return mergeSorted(ranges.filter((r) => r !== overlappingLaterRange));
+    return unionSorted(ranges.filter((r) => r !== overlappingLaterRange));
   }
-  return mergeSorted([
+  return unionSorted([
     { start: earlierRange.start, end: overlappingLaterRange.end },
     ...restRanges.filter((r) => r !== overlappingLaterRange),
   ]);
 };
 
-export const merge = (ranges: Range[]) => {
+export const union = (ranges: Range[]) => {
   const sortedRanges = sort(ranges);
-  return mergeSorted(sortedRanges);
+  return unionSorted(sortedRanges);
 };
 
 // In an array of ranges, there should be no overlaps and it should be ordered
-export const cross = (firstRanges: Range[], secondRanges: Range[]): Range[] => {
-  const sortedFirstRanges = merge(firstRanges);
-  const sortedSecondRanges = merge(secondRanges);
-  const rawResult = crossSorted(sortedFirstRanges, sortedSecondRanges);
-  return merge(rawResult);
+export const intersect = (
+  firstRanges: Range[],
+  secondRanges: Range[]
+): Range[] => {
+  const sortedFirstRanges = union(firstRanges);
+  const sortedSecondRanges = union(secondRanges);
+  const rawResult = intersectSorted(sortedFirstRanges, sortedSecondRanges);
+  return union(rawResult);
 };
