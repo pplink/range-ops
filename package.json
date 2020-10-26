@@ -1,0 +1,33 @@
+{
+  "name": "ranges",
+  "version": "0.0.0",
+  "description": "Helper for operations on ranges",
+  "main": "lib/index.js",
+  "scripts": {
+    "prepare": "rimraf ./lib && yarn build",
+    "build": "tsc",
+    "dev": "tsc -w",
+    "test": "jest"
+  },
+  "dependencies": {
+    "lodash": "^4.17.15"
+  },
+  "devDependencies": {
+    "@types/lodash": "^4.14.149",
+    "husky": "^4.2.1",
+    "lerna": "^3.20.2",
+    "lint-staged": "^10.0.3",
+    "prettier": "^2.0.4",
+    "typescript": "^3.7.5"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "**/*.{ts,tsx,js}": [
+      "prettier --write"
+    ]
+  }
+}
