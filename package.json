@@ -1,5 +1,5 @@
 {
-  "name": "ranges",
+  "name": "range-ops",
   "version": "0.0.0",
   "description": "Helper for operations on ranges",
   "main": "lib/index.js",
